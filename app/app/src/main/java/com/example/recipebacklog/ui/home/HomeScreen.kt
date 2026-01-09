@@ -18,18 +18,22 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import com.example.recipebacklog.domain.models.Recipe
 import com.example.recipebacklog.domain.models.RecipeStatus
+import androidx.compose.runtime.LaunchedEffect
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen( // _____Clément_____
+
     viewModel: HomeViewModel,
     onSearchClick: () -> Unit,
     onRecipeClick: (String) -> Unit, // _____Clément_____
     onAccountClick: () -> Unit = {},
     onAboutClick: () -> Unit = {}
 ) {
-    var selectedStatus by remember { mutableStateOf(RecipeStatus.BACKLOG) } // _____Clément_____
-    
+    var selectedStatus by remember { mutableStateOf(RecipeStatus.BACKLOG) }
     // On filtre les recettes du ViewModel par le statut sélectionné
     val filteredRecipes = viewModel.recipes.filter { it.status == selectedStatus }
 
