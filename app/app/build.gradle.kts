@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -75,4 +76,13 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     // Fournit le manifeste pour les tests Compose.
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    
+    // Gère les versions des bibliothèques Firebase.
+    implementation(platform("com.google.firebase:firebase-bom:34.0.0"))
+    // Fournit l'authentification Firebase.
+    implementation("com.google.firebase:firebase-auth")
+
+    implementation("androidx.navigation:navigation-compose:2.8.0")
+    // Fournit une meilleure intégration des coroutines avec les services Google Play.
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
 }

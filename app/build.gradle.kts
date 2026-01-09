@@ -6,4 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.android) apply false
     // Plugin pour la prise en charge de Jetpack Compose.
     alias(libs.plugins.kotlin.compose) apply false
+
+    id("com.google.gms.google-services") version "4.4.2" apply false
+
 }

@@ -10,14 +10,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 
 @Composable
 fun LoginScreen(
-    onLogin: () -> Unit,      // callback pour naviguer vers Home
-    onRegister: () -> Unit    // callback pour naviguer vers Register
+    onLogin: (String, String) -> Unit,
+    onRegister: () -> Unit
 ) {
-    // États pour les champs
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    // Layout principal
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -33,7 +31,6 @@ fun LoginScreen(
                 style = MaterialTheme.typography.headlineMedium
             )
 
-            // Champ email
             TextField(
                 value = email,
                 onValueChange = { email = it },
@@ -42,7 +39,6 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Champ password
             TextField(
                 value = password,
                 onValueChange = { password = it },
@@ -52,15 +48,13 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Bouton login
             Button(
-                onClick = { onLogin() },
+                onClick = { onLogin(email, password) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Login")
             }
 
-            // Lien vers Register
             TextButton(
                 onClick = { onRegister() },
                 modifier = Modifier.align(Alignment.CenterHorizontally)

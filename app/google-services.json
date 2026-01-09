@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "334430246014",
+    "project_id": "recipebacklog",
+    "storage_bucket": "recipebacklog.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:334430246014:android:3d89130ccb7d930461342f",
+        "android_client_info": {
+          "package_name": "com.example.recipebacklog"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB20gb6Gt8UBrpDbsuoPvv_LwqM7Ma5kGY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

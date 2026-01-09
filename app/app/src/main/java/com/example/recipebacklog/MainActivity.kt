@@ -3,23 +3,21 @@ package com.example.recipebacklog
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.navigation.compose.rememberNavController
 import com.example.recipebacklog.ui.navigation.AppNavGraph
-import com.example.recipebacklog.ui.theme.RecipeBacklogTheme
+import com.google.firebase.FirebaseApp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        FirebaseApp.initializeApp(this)
         setContent {
-            RecipeBacklogTheme {
-                Surface(color = MaterialTheme.colorScheme.background) {
-                    val navController = rememberNavController()
-                    AppNavGraph(navController)
-                }
+            MaterialTheme {
+                // On initialise le contrôleur de navigation ici
+                val navController = rememberNavController()
+                // On passe le contrôleur à notre graphe de navigation
+                AppNavGraph(navController = navController)
             }
         }
     }

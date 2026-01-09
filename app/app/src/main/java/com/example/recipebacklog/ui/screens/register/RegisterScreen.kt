@@ -10,14 +10,13 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 
 @Composable
 fun RegisterScreen(
-    onRegister: () -> Unit,   // callback pour revenir ou naviguer vers Login/Home
+    onRegister: (String, String) -> Unit,
+    onBack: () -> Unit
 ) {
-    // États pour les champs
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
-    // Layout principal
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -33,7 +32,6 @@ fun RegisterScreen(
                 style = MaterialTheme.typography.headlineMedium
             )
 
-            // Champ email
             TextField(
                 value = email,
                 onValueChange = { email = it },
@@ -42,7 +40,6 @@ fun RegisterScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Champ password
             TextField(
                 value = password,
                 onValueChange = { password = it },
@@ -52,7 +49,6 @@ fun RegisterScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Champ confirmation
             TextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
@@ -62,12 +58,8 @@ fun RegisterScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Bouton register
             Button(
-                onClick = {
-                    println("REGISTER MOCK: $email")
-                    onRegister()
-                },
+                onClick = { onRegister(email, password) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Register")
