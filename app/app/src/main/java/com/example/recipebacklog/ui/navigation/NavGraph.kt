@@ -101,7 +101,6 @@ fun AppNavGraph(navController: NavHostController) {
 
         composable("account") {
             AccountScreen(
-                userEmail = authRepo.currentUser?.email ?: "Unknown",
                 onLogout = {
                     authRepo.signOut()
                     navController.navigate("login") {

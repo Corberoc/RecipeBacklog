@@ -9,9 +9,6 @@
 
     android {
         namespace = "com.example.recipebacklog"
-        //compileSdk {
-        //    version = release(36)
-        //}
         compileSdk = 36
 
         defaultConfig {
@@ -59,6 +56,9 @@
         implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
         implementation("androidx.navigation:navigation-compose:2.8.0")
 
+        // Coil for image loading
+        implementation("io.coil-kt:coil-compose:2.6.0")
+
         // Ktor
         implementation("io.ktor:ktor-client-core:2.3.7")
         implementation("io.ktor:ktor-client-cio:2.3.7")
@@ -66,16 +66,10 @@
         implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
         implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
-        // Firebase
-        //implementation(platform("com.google.firebase:firebase-bom:34.0.0"))
-        //implementation("com.google.firebase:firebase-auth")
-
-        //implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
-        //implementation("com.google.firebase:firebase-firestore-ktx")
-        //implementation(libs.google.firebase.firestore.ktx)
 
         implementation("com.google.firebase:firebase-auth-ktx:23.1.0")
         implementation("com.google.firebase:firebase-firestore-ktx:25.1.1")
+        implementation("com.google.firebase:firebase-storage-ktx:20.3.0")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
 
         testImplementation(libs.junit)
