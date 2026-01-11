@@ -107,9 +107,9 @@ fun HomeScreen(
 
 // Mock data
 val mockRecipes = listOf(
-    Recipe("1", "Pâtes Carbo", "Classique", RecipeStatus.BACKLOG),
-    Recipe("2", "Burger", "Steak + cheddar", RecipeStatus.IN_PROGRESS),
-    Recipe("3", "Curry", "Épicé", RecipeStatus.DONE),
-    Recipe("4", "Salade", "Légère", RecipeStatus.BACKLOG),
-    Recipe("5", "Tacos", "Rapide", RecipeStatus.IN_PROGRESS)
+    Recipe("1", "Pâtes Carbo", "Classique",null, RecipeStatus.BACKLOG),
+    Recipe("2", "Burger", "Steak + cheddar", null,RecipeStatus.IN_PROGRESS),
+    Recipe("3", "Curry", "Épicé", null,RecipeStatus.DONE),
+    Recipe("4", "Salade", "Légère", null,RecipeStatus.BACKLOG),
+    Recipe("5", "Tacos", "Rapide", null,RecipeStatus.IN_PROGRESS)
 )

@@ -75,7 +75,7 @@ fun AppNavGraph(navController: NavHostController) {
                 onBack = { navController.popBackStack() }
             )
         }
-
+/*
         composable("home") {
             HomeScreen(
                 viewModel = homeViewModel, // _____Clément_____
@@ -85,6 +85,21 @@ fun AppNavGraph(navController: NavHostController) {
                 onAboutClick = { navController.navigate("about") }
             )
         }
+*/
+        composable("home") {
+            androidx.compose.runtime.LaunchedEffect(Unit) {
+                homeViewModel.loadRecipes()
+            }
+
+            HomeScreen(
+                viewModel = homeViewModel,
+                onSearchClick = { navController.navigate("search") },
+                onRecipeClick = { id -> navController.navigate("recipeDetail/$id") },
+                onAccountClick = { navController.navigate("account") },
+                onAboutClick = { navController.navigate("about") }
+            )
+        }
+
 
         // Nouvelle route pour le détail d'une recette enregistrée // _____Clément_____
         composable(
@@ -138,10 +153,20 @@ fun AppNavGraph(navController: NavHostController) {
                 onBack = { navController.popBackStack() } // _____Clément_____
             )
         }
-
+/*
         composable("addEditRecipe") {
             AddEditRecipeScreen(
                 onSave = { navController.popBackStack() },
+                onBack = { navController.popBackStack() }
+            )
+        }
+ */
+        composable("addEditRecipe") {
+            AddEditRecipeScreen(
+                onSave = { recipe ->
+                    homeViewModel.addOrUpdateRecipe(recipe)
+                    navController.popBackStack()
+                },
                 onBack = { navController.popBackStack() }
             )
         }

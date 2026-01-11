@@ -9,7 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.recipebacklog.data.api.models.MealApiRepository // _____Clément_____
 import com.example.recipebacklog.data.api.models.ApiMeal
-import com.example.recipebacklog.domain.models.Recipe
+//import com.example.recipebacklog.domain.models_old.Recipe
+import com.example.recipebacklog.model.Recipe
 import com.example.recipebacklog.domain.mappers.toRecipe
 
 @OptIn(ExperimentalMaterial3Api::class)

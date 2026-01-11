@@ -16,12 +16,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
-import com.example.recipebacklog.domain.models.Recipe
-import com.example.recipebacklog.domain.models.RecipeStatus
-import androidx.compose.runtime.LaunchedEffect
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-
+//import com.example.recipebacklog.domain.models_old.Recipe
+//import com.example.recipebacklog.domain.models_old.RecipeStatus
+import com.example.recipebacklog.model.Recipe
+import com.example.recipebacklog.model.RecipeStatus
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

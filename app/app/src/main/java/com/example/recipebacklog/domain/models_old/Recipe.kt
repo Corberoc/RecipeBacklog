@@ -1,4 +1,4 @@
-package com.example.recipebacklog.domain.models
+package com.example.recipebacklog.domain.models_old
 
 data class Recipe(
     val id: String,

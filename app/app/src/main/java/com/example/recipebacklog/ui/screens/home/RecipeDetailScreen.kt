@@ -7,7 +7,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.recipebacklog.domain.models.Recipe
+//import com.example.recipebacklog.domain.models_old.Recipe
+import com.example.recipebacklog.model.Recipe
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
