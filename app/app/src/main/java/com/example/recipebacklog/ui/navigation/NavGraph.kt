@@ -21,6 +21,8 @@ import com.example.recipebacklog.ui.search.MealDetailScreen
 import com.example.recipebacklog.ui.screens.home.RecipeDetailScreen // _____Clément_____
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
+import com.example.recipebacklog.data.analytics.AnalyticsLogger
+
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
@@ -44,6 +46,7 @@ fun AppNavGraph(navController: NavHostController) {
                     scope.launch {
                         try {
                             authRepo.signIn(email, pass)
+                            AnalyticsLogger.logLoginSuccess()
                             navController.navigate("home") {
                                 popUpTo("login") { inclusive = true }
                             }
@@ -75,17 +78,7 @@ fun AppNavGraph(navController: NavHostController) {
                 onBack = { navController.popBackStack() }
             )
         }
-/*
-        composable("home") {
-            HomeScreen(
-                viewModel = homeViewModel, // _____Clément_____
-                onSearchClick = { navController.navigate("search") }, // _____Clément_____
-                onRecipeClick = { id -> navController.navigate("recipeDetail/$id") }, // _____Clément_____
-                onAccountClick = { navController.navigate("account") },
-                onAboutClick = { navController.navigate("about") }
-            )
-        }
-*/
+
         composable("home") {
             androidx.compose.runtime.LaunchedEffect(Unit) {
                 homeViewModel.loadRecipes()
@@ -101,7 +94,7 @@ fun AppNavGraph(navController: NavHostController) {
         }
 
 
-        // Nouvelle route pour le détail d'une recette enregistrée // _____Clément_____
+        // Nouvelle route pour le détail d'une recette enregistrée
         composable(
             "recipeDetail/{recipeId}",
             arguments = listOf(navArgument("recipeId") { type = NavType.StringType })

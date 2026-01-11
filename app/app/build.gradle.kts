@@ -67,10 +67,13 @@
         implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
 
+        implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
         implementation("com.google.firebase:firebase-auth-ktx:23.1.0")
         implementation("com.google.firebase:firebase-firestore-ktx:25.1.1")
         implementation("com.google.firebase:firebase-storage-ktx:20.3.0")
+        implementation("com.google.firebase:firebase-analytics-ktx")//:22.1.2
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
+        //implementation(libs.play.services.measurement.api)
 
         testImplementation(libs.junit)
         androidTestImplementation(libs.androidx.junit)
