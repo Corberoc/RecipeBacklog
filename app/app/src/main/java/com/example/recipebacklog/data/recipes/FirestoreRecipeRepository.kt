@@ -34,8 +34,32 @@ class FirestoreRecipeRepository(
 
     override suspend fun getAll(): List<Recipe> {
         val snap = recipesCollection().get().await()
-        return snap.toObjects(Recipe::class.java)
+
+        return snap.documents.mapNotNull { doc ->
+            val title = doc.getString("title") ?: return@mapNotNull null
+            val description = doc.getString("description")
+            val imageUrl = doc.getString("imageUrl")
+
+            val statusStr = doc.getString("status") ?: RecipeStatus.BACKLOG.name
+            val status = runCatching { RecipeStatus.valueOf(statusStr) }
+                .getOrDefault(RecipeStatus.BACKLOG)
+
+            val isFavorite = doc.getBoolean("isFavorite")
+                ?: doc.getBoolean("favorite")  // fallback si tu changes plus tard
+                ?: false
+
+            Recipe(
+                id = doc.id,
+                title = title,
+                description = description,
+                imageUrl = imageUrl,
+                status = status,
+                isFavorite = isFavorite
+            )
+        }
     }
+
+
 
     override suspend fun upsert(recipe: Recipe) {
         // Si ton Recipe.id est déjà un String unique, on l’utilise comme docId
@@ -56,6 +80,13 @@ class FirestoreRecipeRepository(
         recipesCollection()
             .document(recipeId)
             .update("status", status)
+            .await()
+    }
+
+    override suspend fun updateFavorite(recipeId: String, isFavorite: Boolean) {
+        recipesCollection()
+            .document(recipeId)
+            .update("isFavorite", isFavorite)
             .await()
     }
 }

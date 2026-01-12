@@ -5,11 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.recipebacklog.data.analytics.AnalyticsLogger
 import com.example.recipebacklog.data.recipes.FirestoreRecipeRepository
 import com.example.recipebacklog.data.recipes.RecipeRepository
 import com.example.recipebacklog.model.Recipe
+import com.example.recipebacklog.model.RecipeStatus
 import kotlinx.coroutines.launch
-import com.example.recipebacklog.data.analytics.AnalyticsLogger
 
 class HomeViewModel(
     private val repo: RecipeRepository = FirestoreRecipeRepository()
@@ -46,6 +47,18 @@ class HomeViewModel(
             recipes = repo.getAll()
         }
     }
+
+    fun toggleFavorite(recipe: Recipe) {
+        viewModelScope.launch {
+            repo.updateFavorite(recipe.id, !recipe.isFavorite)
+            recipes = repo.getAll()
+        }
+    }
+
+    fun changeStatus(recipeId: String, status: RecipeStatus) {
+        viewModelScope.launch {
+            repo.updateStatus(recipeId, status)
+            recipes = repo.getAll()
+        }
+    }
 }
-
-

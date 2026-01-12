@@ -75,6 +75,7 @@
         implementation("com.google.firebase:firebase-crashlytics-ktx")//:19.2.1
         implementation("com.google.firebase:firebase-analytics-ktx")//:22.1.2
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
+        implementation("androidx.compose.material:material-icons-extended")
         //implementation(libs.play.services.measurement.api)
 
         testImplementation(libs.junit)
