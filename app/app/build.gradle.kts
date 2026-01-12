@@ -3,7 +3,8 @@
         alias(libs.plugins.kotlin.android)
         alias(libs.plugins.kotlin.compose)
         id("com.google.gms.google-services")
-        id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10" // ou ta version Kotlin
+        id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10"
+        id("com.google.firebase.crashlytics")
 
     }
 
@@ -71,6 +72,7 @@
         implementation("com.google.firebase:firebase-auth-ktx:23.1.0")
         implementation("com.google.firebase:firebase-firestore-ktx:25.1.1")
         implementation("com.google.firebase:firebase-storage-ktx:20.3.0")
+        implementation("com.google.firebase:firebase-crashlytics-ktx")//:19.2.1
         implementation("com.google.firebase:firebase-analytics-ktx")//:22.1.2
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
         //implementation(libs.play.services.measurement.api)

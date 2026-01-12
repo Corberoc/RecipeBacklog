@@ -48,6 +48,11 @@ fun AboutScreen( // _____Clément_____
                 text = "This app is a demo project to have a very good grade.",
                 style = MaterialTheme.typography.bodyMedium
             )
+            Button(
+                onClick = { throw RuntimeException("Test Crashlytics") }
+            ) {
+                Text("Test Crashlytics")
+            }
         }
     }
 }
