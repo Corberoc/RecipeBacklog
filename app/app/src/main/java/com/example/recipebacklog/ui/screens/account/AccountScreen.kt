@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -33,22 +34,31 @@ fun AccountScreen(
     accountViewModel: AccountViewModel = viewModel()
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     val user by accountViewModel.user.collectAsState()
-    var displayName by remember(user?.displayName) { mutableStateOf(user?.displayName ?: "") }
-    var selectedPhotoUri by remember { mutableStateOf<Uri?>(null) }
+    val displayUri by accountViewModel.displayUri.collectAsState()
 
+    var displayName by remember(user?.displayName) { mutableStateOf(user?.displayName ?: "") }
     var currentPassword by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
 
     val passwordChangeState by accountViewModel.passwordChangeState.collectAsState()
     val profileUpdateState by accountViewModel.profileUpdateState.collectAsState()
 
+
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        selectedPhotoUri = uri
+        uri?.let {
+            accountViewModel.onPhotoSelected(context, it)
+        }
     }
+
+    LaunchedEffect(user) {
+        user?.let { accountViewModel.initialize(context) }
+    }
+
 
     LaunchedEffect(passwordChangeState) {
         when (val state = passwordChangeState) {
@@ -67,8 +77,6 @@ fun AccountScreen(
         when (val state = profileUpdateState) {
             is ProfileUpdateState.Success -> {
                 snackbarHostState.showSnackbar("Profile updated successfully!")
-                displayName = user?.displayName ?: ""
-                selectedPhotoUri = null
                 accountViewModel.resetProfileUpdateState()
             }
             is ProfileUpdateState.Error -> snackbarHostState.showSnackbar(state.message)
@@ -96,16 +104,20 @@ fun AccountScreen(
         ) {
             // Profile Picture
             AsyncImage(
-                model = selectedPhotoUri ?: user?.photoUrl,
+                model = displayUri,
                 contentDescription = "Profile Picture",
                 modifier = Modifier
                     .size(120.dp)
                     .clip(CircleShape)
                     .clickable { imagePickerLauncher.launch("image/*") },
                 contentScale = ContentScale.Crop,
-                placeholder = painterResource(id = R.drawable.etchebest),
-                error = painterResource(id = R.drawable.etchebest)
+                //placeholder = painterResource(id = R.mipmap.ic_launcher),
+                //error = painterResource(id = R.mipmap.ic_launcher)
+                // Utilisez une ressource depuis 'drawable' au lieu de 'mipmap'
+                placeholder = painterResource(id = R.drawable.etchebest), // Remplacez par le nom de votre nouvelle ressource
+                error = painterResource(id = R.drawable.etchebest)       // Remplacez par le nom de votre nouvelle ressource
             )
+
 
             OutlinedTextField(
                 value = displayName,
@@ -116,7 +128,7 @@ fun AccountScreen(
             )
 
             Button(
-                onClick = { accountViewModel.updateProfile(displayName, selectedPhotoUri) },
+                onClick = { accountViewModel.updateProfile(displayName) },
                 enabled = profileUpdateState != ProfileUpdateState.Loading,
                 modifier = Modifier.fillMaxWidth()
             ) {

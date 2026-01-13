@@ -1,14 +1,20 @@
 package com.example.recipebacklog.ui.screens.account
 
+import android.content.Context
 import android.net.Uri
+import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.recipebacklog.data.auth.AuthRepository
 import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 
 sealed class PasswordChangeState {
     object Idle : PasswordChangeState()
@@ -25,7 +31,7 @@ sealed class ProfileUpdateState {
 }
 
 class AccountViewModel(
-    private val authRepository: AuthRepository = AuthRepository()
+    private val authRepository: AuthRepository = AuthRepository(),
 ) : ViewModel() {
 
     private val _passwordChangeState = MutableStateFlow<PasswordChangeState>(PasswordChangeState.Idle)
@@ -34,8 +40,82 @@ class AccountViewModel(
     private val _profileUpdateState = MutableStateFlow<ProfileUpdateState>(ProfileUpdateState.Idle)
     val profileUpdateState = _profileUpdateState.asStateFlow()
 
-    private val _user = MutableStateFlow(authRepository.currentUser)
+    private val _user = MutableStateFlow<FirebaseUser?>(null)
     val user = _user.asStateFlow()
+
+    private val _displayUri = MutableStateFlow<Uri?>(null)
+    val displayUri = _displayUri.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            authRepository.getAuthState().collect { user ->
+                _user.value = user
+            }
+        }
+    }
+
+    fun initialize(context: Context) {
+        viewModelScope.launch {
+            _user.value?.uid?.let { userId ->
+                val profilePictureFile = File(context.filesDir, "profile_picture_$userId.jpg")
+                if (profilePictureFile.exists()) {
+                    val uri = FileProvider.getUriForFile(
+                        context,
+                        "com.example.recipebacklog.provider",
+                        profilePictureFile
+                    )
+                    _displayUri.value = uri.buildUpon()
+                        .appendQueryParameter("v", profilePictureFile.lastModified().toString())
+                        .build()
+                }
+            }
+        }
+    }
+
+    fun onPhotoSelected(context: Context, contentUri: Uri) {
+        viewModelScope.launch {
+            _user.value?.uid?.let { userId ->
+                val localFileUri = withContext(Dispatchers.IO) {
+                    copyUriToInternalStorage(context, contentUri, userId)
+                }
+
+                if (localFileUri != null) {
+                    val profilePictureFile = File(context.filesDir, "profile_picture_$userId.jpg")
+                    _displayUri.value = localFileUri.buildUpon()
+                        .appendQueryParameter("v", profilePictureFile.lastModified().toString())
+                        .build()
+                } else {
+                    // Optionally handle the error, e.g., show a snackbar
+                }
+            }
+        }
+    }
+
+    private fun copyUriToInternalStorage(context: Context, contentUri: Uri, userId: String): Uri? {
+        return try {
+            val outputFile = File(context.filesDir, "profile_picture_$userId.jpg")
+            context.contentResolver.openInputStream(contentUri)?.use { inputStream ->
+                FileOutputStream(outputFile).use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+            FileProvider.getUriForFile(context, "com.example.recipebacklog.provider", outputFile)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun updateProfile(displayName: String) {
+        viewModelScope.launch {
+            _profileUpdateState.value = ProfileUpdateState.Loading
+            val result = authRepository.updateProfile(displayName)
+            if (result.isSuccess) {
+                _profileUpdateState.value = ProfileUpdateState.Success
+            } else {
+                _profileUpdateState.value = ProfileUpdateState.Error(result.exceptionOrNull()?.message ?: "An unknown error occurred")
+            }
+        }
+    }
 
     fun changePassword(currentPassword: String, newPassword: String) {
         viewModelScope.launch {
@@ -51,24 +131,6 @@ class AccountViewModel(
 
     fun resetPasswordChangeState() {
         _passwordChangeState.value = PasswordChangeState.Idle
-    }
-
-    fun updateProfile(displayName: String, photoUri: Uri?) {
-        viewModelScope.launch {
-            _profileUpdateState.value = ProfileUpdateState.Loading
-            val result = authRepository.updateProfile(displayName, photoUri)
-            if (result.isSuccess) {
-                try {
-                    authRepository.currentUser?.reload()?.await()
-                    _user.value = authRepository.currentUser
-                    _profileUpdateState.value = ProfileUpdateState.Success
-                } catch (e: Exception) {
-                    _profileUpdateState.value = ProfileUpdateState.Error(e.message ?: "Failed to refresh user.")
-                }
-            } else {
-                _profileUpdateState.value = ProfileUpdateState.Error(result.exceptionOrNull()?.message ?: "An unknown error occurred")
-            }
-        }
     }
 
     fun resetProfileUpdateState() {
