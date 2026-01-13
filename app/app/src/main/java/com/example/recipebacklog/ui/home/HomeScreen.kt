@@ -21,6 +21,11 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.example.recipebacklog.model.Recipe
 import com.example.recipebacklog.model.RecipeStatus
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.draw.clip
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -152,68 +157,89 @@ fun RecipeItem(
     onChangeStatus: (RecipeStatus) -> Unit
 ) {
     var statusMenuExpanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
     ) {
-        Column(Modifier.padding(16.dp)) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
 
-            // Titre + actions (favori / delete)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(recipe.title, style = MaterialTheme.typography.titleLarge)
-
-                Row {
-                    IconButton(onClick = onToggleFavorite) {
-                        Icon(
-                            imageVector = if (recipe.isFavorite) Icons.Filled.Star else Icons.Outlined.StarBorder,
-                            contentDescription = "Favori"
-                        )
-                    }
-                    IconButton(onClick = onDelete) {
-                        Icon(Icons.Filled.Delete, contentDescription = "Supprimer")
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(4.dp))
-
-            recipe.description?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 2
+            // ✅ Miniature image (si imageUrl existe)
+            if (!recipe.imageUrl.isNullOrBlank()) {
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(recipe.imageUrl)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "Image de ${recipe.title}",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(72.dp)
+                        .clip(MaterialTheme.shapes.medium)
                 )
-                Spacer(Modifier.height(8.dp))
             }
 
-            // Statut + menu
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text("Statut : ${recipe.status.name}")
+            // ✅ Contenu texte + actions
+            Column(modifier = Modifier.weight(1f)) {
 
-                TextButton(onClick = { statusMenuExpanded = true }) {
-                    Text("Changer")
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(recipe.title, style = MaterialTheme.typography.titleLarge)
+
+                    Row {
+                        IconButton(onClick = onToggleFavorite) {
+                            Icon(
+                                imageVector = if (recipe.isFavorite) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                                contentDescription = "Favori"
+                            )
+                        }
+                        IconButton(onClick = onDelete) {
+                            Icon(Icons.Filled.Delete, contentDescription = "Supprimer")
+                        }
+                    }
                 }
 
-                DropdownMenu(
-                    expanded = statusMenuExpanded,
-                    onDismissRequest = { statusMenuExpanded = false }
+                recipe.description?.let {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 2
+                    )
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    RecipeStatus.entries.forEach { s ->
-                        DropdownMenuItem(
-                            text = { Text(s.name) },
-                            onClick = {
-                                statusMenuExpanded = false
-                                onChangeStatus(s)
-                            }
-                        )
+                    Text("Statut : ${recipe.status.name}")
+
+                    TextButton(onClick = { statusMenuExpanded = true }) {
+                        Text("Changer")
+                    }
+
+                    DropdownMenu(
+                        expanded = statusMenuExpanded,
+                        onDismissRequest = { statusMenuExpanded = false }
+                    ) {
+                        RecipeStatus.entries.forEach { s ->
+                            DropdownMenuItem(
+                                text = { Text(s.name) },
+                                onClick = {
+                                    statusMenuExpanded = false
+                                    onChangeStatus(s)
+                                }
+                            )
+                        }
                     }
                 }
             }
