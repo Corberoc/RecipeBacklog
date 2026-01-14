@@ -1,4 +1,4 @@
-package com.example.recipebacklog.data.api.models // _____Clément_____
+package com.example.recipebacklog.data.api.models
 
 import kotlinx.serialization.Serializable
 

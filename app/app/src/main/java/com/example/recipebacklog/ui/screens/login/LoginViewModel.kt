@@ -16,7 +16,7 @@ class LoginViewModel(
     var errorMessage by mutableStateOf<String?>(null)
     var loginSuccess by mutableStateOf(false)
 
-    fun login(email: String, password: String) { // _____Clément_____
+    fun login(email: String, password: String) { 
         if (email.isBlank() || password.isBlank()) {
             errorMessage = "Veuillez remplir tous les champs"
             return
@@ -27,7 +27,7 @@ class LoginViewModel(
                 isLoading = true
                 errorMessage = null
                 authRepository.signIn(email, password)
-                loginSuccess = true // _____Clément_____
+                loginSuccess = true 
             } catch (e: Exception) {
                 errorMessage = "Erreur de connexion : ${e.message}"
             } finally {
@@ -36,7 +36,7 @@ class LoginViewModel(
         }
     }
 
-    fun resetLoginStatus() { // _____Clément_____
+    fun resetLoginStatus() { 
         loginSuccess = false
         errorMessage = null
     }

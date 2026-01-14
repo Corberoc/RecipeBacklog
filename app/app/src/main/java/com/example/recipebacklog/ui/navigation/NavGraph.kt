@@ -80,6 +80,7 @@ fun AppNavGraph(navController: NavHostController) {
 
             HomeScreen(
                 viewModel = homeViewModel,
+                userName = authState?.displayName ?: "Utilisateur",
                 onSearchClick = { navController.navigate("search") },
                 onRecipeClick = { id -> navController.navigate("recipeDetail/$id") },
                 onAccountClick = { navController.navigate("account") },

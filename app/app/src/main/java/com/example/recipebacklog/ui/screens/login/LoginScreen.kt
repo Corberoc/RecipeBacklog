@@ -56,7 +56,7 @@ fun LoginScreen(
             )
 
             Text(
-                text = "RecettesApp",
+                text = "Recipe Backlog",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = DarkBlue

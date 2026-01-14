@@ -1,9 +1,9 @@
 package com.example.recipebacklog.ui.search
 
-import android.util.Log // _____Clément_____
+import android.util.Log 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.recipebacklog.data.api.models.MealApiRepository // _____Clément_____
+import com.example.recipebacklog.data.api.models.MealApiRepository 
 import com.example.recipebacklog.data.api.models.ApiMeal
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.mutableStateOf
@@ -14,7 +14,7 @@ class SearchViewModel(
     private val repository: MealApiRepository = MealApiRepository()
 ) : ViewModel() {
 
-    var query by mutableStateOf("") // _____Clément_____
+    var query by mutableStateOf("") 
     var results by mutableStateOf<List<ApiMeal>>(emptyList())
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
@@ -32,8 +32,8 @@ class SearchViewModel(
                 }
 
             } catch (e: Exception) {
-                errorMessage = "Erreur réseau" // _____Clément_____
-                Log.e("SearchViewModel", "Erreur réseau", e) // _____Clément_____
+                errorMessage = "Erreur réseau" 
+                Log.e("SearchViewModel", "Erreur réseau", e) 
             } finally {
                 isLoading = false
             }

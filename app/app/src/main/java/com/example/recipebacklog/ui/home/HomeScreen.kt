@@ -1,7 +1,7 @@
 package com.example.recipebacklog.ui.home
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.* 
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
+    userName: String,
     onSearchClick: () -> Unit,
     onRecipeClick: (String) -> Unit,
     onAccountClick: () -> Unit = {},
@@ -46,7 +47,7 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Mes Recettes") },
+                title = { Text("Bonjour, $userName") },
                 actions = {
                     IconButton(onClick = onAccountClick) {
                         Icon(Icons.Default.Person, contentDescription = "Account")

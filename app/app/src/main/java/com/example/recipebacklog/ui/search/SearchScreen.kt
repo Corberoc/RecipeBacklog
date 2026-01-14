@@ -16,12 +16,12 @@ import com.example.recipebacklog.data.api.models.ApiMeal
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen( // _____Clément_____
+fun SearchScreen(
     viewModel: SearchViewModel = viewModel(),
     onMealClick: (String) -> Unit,
-    onBack: () -> Unit // _____Clément_____
+    onBack: () -> Unit
 ) {
-    Scaffold( // _____Clément_____
+    Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Recherche de Recettes") },
@@ -59,7 +59,7 @@ fun SearchScreen( // _____Clément_____
                     contentAlignment = Alignment.Center,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    CircularProgressIndicator() // _____Clément_____
+                    CircularProgressIndicator()
                 }
             }
 
