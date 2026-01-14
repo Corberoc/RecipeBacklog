@@ -24,10 +24,11 @@ import com.example.recipebacklog.ui.theme.Orange
 @Composable
 fun LoginScreen(
     onLogin: (String, String) -> Unit,
-    onRegister: () -> Unit
+    onRegister: (String, String) -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
     var isLogin by remember { mutableStateOf(true) }
 
     Box(
@@ -126,13 +127,29 @@ fun LoginScreen(
                     unfocusedBorderColor = Color.LightGray
                 )
             )
+            if (!isLogin) {
+                OutlinedTextField(
+                    value = confirmPassword,
+                    onValueChange = { confirmPassword = it },
+                    label = { Text("Confirmer le mot de passe") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Orange,
+                        unfocusedBorderColor = Color.LightGray
+                    )
+                )
+            }
 
             Button(
                 onClick = { 
                     if (isLogin) {
                         onLogin(email, password)
                     } else {
-                        onRegister()
+                        if (password == confirmPassword) {
+                            onRegister(email, password)
+                        }
                     }
                  },
                 modifier = Modifier
