@@ -38,6 +38,8 @@ fun AccountScreen(
 
     val user by accountViewModel.user.collectAsState()
     val displayUri by accountViewModel.displayUri.collectAsState()
+    val profileUpdateState by accountViewModel.profileUpdateState.collectAsState()
+    val passwordChangeState by accountViewModel.passwordChangeState.collectAsState()
 
     var displayName by remember(user?.displayName) { mutableStateOf(user?.displayName ?: "") }
     var currentPassword by remember { mutableStateOf("") }
@@ -52,6 +54,37 @@ fun AccountScreen(
 
     LaunchedEffect(user) {
         user?.let { accountViewModel.initialize(context) }
+    }
+
+    LaunchedEffect(profileUpdateState) {
+        when (val state = profileUpdateState) {
+            is ProfileUpdateState.Success -> {
+                snackbarHostState.showSnackbar("Profil mis à jour avec succès!")
+                accountViewModel.resetProfileUpdateState()
+            }
+            is ProfileUpdateState.Error -> {
+                snackbarHostState.showSnackbar("Erreur: ${state.message}")
+                accountViewModel.resetProfileUpdateState()
+            }
+            else -> { /* Idle or Loading */ }
+        }
+    }
+
+    LaunchedEffect(passwordChangeState) {
+        when (val state = passwordChangeState) {
+            is PasswordChangeState.Success -> {
+                snackbarHostState.showSnackbar("Mot de passe changé avec succès!")
+                accountViewModel.resetPasswordChangeState()
+                currentPassword = ""
+                newPassword = ""
+                confirmNewPassword = ""
+            }
+            is PasswordChangeState.Error -> {
+                snackbarHostState.showSnackbar("Erreur: ${state.message}")
+                accountViewModel.resetPasswordChangeState()
+            }
+            else -> { /* Idle or Loading */ }
+        }
     }
 
     Scaffold(
@@ -106,9 +139,14 @@ fun AccountScreen(
                 Button(
                     onClick = { accountViewModel.updateProfile(displayName) },
                     modifier = Modifier.fillMaxWidth(),
+                    enabled = profileUpdateState !is ProfileUpdateState.Loading,
                     colors = ButtonDefaults.buttonColors(containerColor = DarkBlue)
                 ) {
-                    Text("Enregistrer les modifications")
+                    if (profileUpdateState is ProfileUpdateState.Loading) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
+                    } else {
+                        Text("Enregistrer les modifications")
+                    }
                 }
             }
 
@@ -146,9 +184,14 @@ fun AccountScreen(
                 Button(
                     onClick = { accountViewModel.changePassword(currentPassword, newPassword) },
                     modifier = Modifier.fillMaxWidth(),
+                    enabled = passwordChangeState !is PasswordChangeState.Loading,
                     colors = ButtonDefaults.buttonColors(containerColor = DarkBlue)
                 ) {
-                    Text("Changer le mot de passe")
+                    if (passwordChangeState is PasswordChangeState.Loading) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
+                    } else {
+                        Text("Changer le mot de passe")
+                    }
                 }
             }
 
