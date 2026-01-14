@@ -88,7 +88,7 @@ fun HomeScreen(
                             showFavoritesOnly = false
                             selectedStatus = status
                         },
-                        label = { Text(status.name) }
+                        label = { Text(status.displayName) }
                     )
                 }
             }
@@ -221,7 +221,7 @@ fun RecipeItem(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Statut : ${recipe.status.name}")
+                    Text("Statut : ${recipe.status.displayName}")
 
                     TextButton(onClick = { statusMenuExpanded = true }) {
                         Text("Changer")
@@ -233,7 +233,7 @@ fun RecipeItem(
                     ) {
                         RecipeStatus.entries.forEach { s ->
                             DropdownMenuItem(
-                                text = { Text(s.name) },
+                                text = { Text(s.displayName) },
                                 onClick = {
                                     statusMenuExpanded = false
                                     onChangeStatus(s)

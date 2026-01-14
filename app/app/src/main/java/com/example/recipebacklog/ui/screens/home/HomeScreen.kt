@@ -26,6 +26,7 @@ import com.example.recipebacklog.model.RecipeStatus
 import com.example.recipebacklog.ui.theme.DarkBlue
 import com.example.recipebacklog.ui.theme.LightCream
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     recipes: List<Recipe> = emptyList(),
@@ -34,7 +35,13 @@ fun HomeScreen(
     onAccount: () -> Unit,
 ) {
     var searchQuery by remember { mutableStateOf("") }
-    val filteredRecipes = recipes.filter { it.title.contains(searchQuery, ignoreCase = true) }
+    var selectedStatus by remember { mutableStateOf<RecipeStatus?>(null) }
+
+    val filteredRecipes = recipes.filter { recipe ->
+        val matchesSearch = recipe.title.contains(searchQuery, ignoreCase = true)
+        val matchesStatus = selectedStatus?.let { it == recipe.status } ?: true
+        matchesSearch && matchesStatus
+    }
 
     Scaffold(
         topBar = { TopBar(onAccount) },
@@ -57,7 +64,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            FilterActions(onAdd = onAdd)
+            FilterActions(selectedStatus = selectedStatus, onStatusSelected = { selectedStatus = it }, onAdd = onAdd)
 
             if (filteredRecipes.isEmpty()) {
                 EmptyState(onAdd = onAdd)
@@ -108,11 +115,11 @@ fun StatsCards(recipes: List<Recipe>) {
     ) {
         StatCard("Total", total.toString(), Modifier.weight(1f))
         Spacer(modifier = Modifier.width(8.dp))
-        StatCard("À faire", todo.toString(), Modifier.weight(1f))
+        StatCard(RecipeStatus.BACKLOG.displayName, todo.toString(), Modifier.weight(1f))
         Spacer(modifier = Modifier.width(8.dp))
-        StatCard("En cours", inProgress.toString(), Modifier.weight(1f))
+        StatCard(RecipeStatus.IN_PROGRESS.displayName, inProgress.toString(), Modifier.weight(1f))
         Spacer(modifier = Modifier.width(8.dp))
-        StatCard("Terminées", done.toString(), Modifier.weight(1f), color = Color(0xFF4CAF50))
+        StatCard(RecipeStatus.DONE.displayName, done.toString(), Modifier.weight(1f), color = Color(0xFF4CAF50))
     }
 }
 
@@ -147,28 +154,42 @@ fun SearchBar(value: String, onValueChange: (String) -> Unit) {
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FilterActions(onAdd: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        TextButton(onClick = { /*TODO*/ }) {
-            Text("Statut", color = DarkBlue)
-        }
-        TextButton(onClick = { /*TODO*/ }) {
-            Text("Favoris (0)", color = DarkBlue)
-        }
-        Spacer(modifier = Modifier.width(8.dp))
-        Button(
-            onClick = onAdd,
-            shape = RoundedCornerShape(8.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = DarkBlue)
+fun FilterActions(selectedStatus: RecipeStatus?, onStatusSelected: (RecipeStatus?) -> Unit, onAdd: () -> Unit) {
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Add")
-            Spacer(modifier = Modifier.width(4.dp))
-            Text("Ajouter")
+            FilterChip(
+                selected = selectedStatus == null,
+                onClick = { onStatusSelected(null) },
+                label = { Text("Tous") }
+            )
+            RecipeStatus.entries.forEach { status ->
+                FilterChip(
+                    selected = selectedStatus == status,
+                    onClick = { onStatusSelected(status) },
+                    label = { Text(status.displayName) }
+                )
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = onAdd,
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = DarkBlue)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add")
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Ajouter")
+            }
         }
     }
 }
