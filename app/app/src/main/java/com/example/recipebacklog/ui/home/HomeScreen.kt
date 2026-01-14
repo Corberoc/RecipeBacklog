@@ -2,8 +2,6 @@ package com.example.recipebacklog.ui.home
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -18,7 +16,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.example.recipebacklog.model.Recipe
 import com.example.recipebacklog.model.RecipeStatus
@@ -45,8 +42,6 @@ fun HomeScreen(
         if (showFavoritesOnly) list.filter { it.isFavorite }
         else list.filter { it.status == selectedStatus }
     }
-
-    val screenWidth = LocalConfiguration.current.screenWidthDp
 
     Scaffold(
         topBar = {
@@ -104,45 +99,24 @@ fun HomeScreen(
                 }
             } else {
                 // Affichage adaptatif
-                if (screenWidth < 600) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 16.dp)
-                    ) {
-                        items(filteredRecipes) { recipe ->
-                            RecipeItem(
-                                recipe = recipe,
-                                onClick = { onRecipeClick(recipe.id) },
-                                onToggleFavorite = { viewModel.toggleFavorite(recipe) },
-                                onDelete = { viewModel.deleteRecipe(recipe.id) },
-                                onChangeStatus = { newStatus ->
-                                    viewModel.changeStatus(recipe.id, newStatus)
-                                }
-                            )
-                            HorizontalDivider()
-                        }
-                    }
-                } else {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        items(filteredRecipes) { recipe ->
-                            RecipeItem(
-                                recipe = recipe,
-                                onClick = { onRecipeClick(recipe.id) },
-                                onToggleFavorite = { viewModel.toggleFavorite(recipe) },
-                                onDelete = { viewModel.deleteRecipe(recipe.id) },
-                                onChangeStatus = { newStatus ->
-                                    viewModel.changeStatus(recipe.id, newStatus)
-                                }
-                            )
-                        }
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(minSize = 300.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(filteredRecipes) { recipe ->
+                        RecipeItem(
+                            recipe = recipe,
+                            onClick = { onRecipeClick(recipe.id) },
+                            onToggleFavorite = { viewModel.toggleFavorite(recipe) },
+                            onDelete = { viewModel.deleteRecipe(recipe.id) },
+                            onChangeStatus = { newStatus ->
+                                viewModel.changeStatus(recipe.id, newStatus)
+                            }
+                        )
                     }
                 }
             }
@@ -186,7 +160,6 @@ fun RecipeItem(
                 )
             }
 
-            // ✅ Contenu texte + actions
             Column(modifier = Modifier.weight(1f)) {
 
                 Row(
