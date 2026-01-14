@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -16,15 +15,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.recipebacklog.R
+import com.example.recipebacklog.ui.theme.DarkBlue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,52 +42,22 @@ fun AccountScreen(
     var displayName by remember(user?.displayName) { mutableStateOf(user?.displayName ?: "") }
     var currentPassword by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
-
-    val passwordChangeState by accountViewModel.passwordChangeState.collectAsState()
-    val profileUpdateState by accountViewModel.profileUpdateState.collectAsState()
-
+    var confirmNewPassword by remember { mutableStateOf("") }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        uri?.let {
-            accountViewModel.onPhotoSelected(context, it)
-        }
+        uri?.let { accountViewModel.onPhotoSelected(context, it) }
     }
 
     LaunchedEffect(user) {
         user?.let { accountViewModel.initialize(context) }
     }
 
-
-    LaunchedEffect(passwordChangeState) {
-        when (val state = passwordChangeState) {
-            is PasswordChangeState.Success -> {
-                snackbarHostState.showSnackbar("Password changed successfully!")
-                currentPassword = ""
-                newPassword = ""
-                accountViewModel.resetPasswordChangeState()
-            }
-            is PasswordChangeState.Error -> snackbarHostState.showSnackbar(state.message)
-            else -> {}
-        }
-    }
-
-    LaunchedEffect(profileUpdateState) {
-        when (val state = profileUpdateState) {
-            is ProfileUpdateState.Success -> {
-                snackbarHostState.showSnackbar("Profile updated successfully!")
-                accountViewModel.resetProfileUpdateState()
-            }
-            is ProfileUpdateState.Error -> snackbarHostState.showSnackbar(state.message)
-            else -> {}
-        }
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Account") },
+                title = { Text("Mon Compte") },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, "Back") } }
             )
         },
@@ -98,11 +68,9 @@ fun AccountScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .padding(16.dp)
-                .verticalScroll(rememberScrollState()), // Make the column scrollable
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Profile Picture
             AsyncImage(
                 model = displayUri,
                 contentDescription = "Profile Picture",
@@ -111,72 +79,82 @@ fun AccountScreen(
                     .clip(CircleShape)
                     .clickable { imagePickerLauncher.launch("image/*") },
                 contentScale = ContentScale.Crop,
-                //placeholder = painterResource(id = R.mipmap.ic_launcher),
-                //error = painterResource(id = R.mipmap.ic_launcher)
-                // Utilisez une ressource depuis 'drawable' au lieu de 'mipmap'
-                placeholder = painterResource(id = R.drawable.etchebest), // Remplacez par le nom de votre nouvelle ressource
-                error = painterResource(id = R.drawable.etchebest)       // Remplacez par le nom de votre nouvelle ressource
+                placeholder = painterResource(id = R.drawable.etchebest),
+                error = painterResource(id = R.drawable.etchebest)
             )
 
+            Spacer(modifier = Modifier.height(24.dp))
 
-            OutlinedTextField(
-                value = displayName,
-                onValueChange = { displayName = it },
-                label = { Text("Display Name") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Button(
-                onClick = { accountViewModel.updateProfile(displayName) },
-                enabled = profileUpdateState != ProfileUpdateState.Loading,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                if (profileUpdateState == ProfileUpdateState.Loading) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                } else {
-                    Text("Update Profile")
+            // Profile Section
+            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
+                OutlinedTextField(
+                    value = displayName,
+                    onValueChange = { displayName = it },
+                    label = { Text("Pseudo") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = user?.email ?: "",
+                    onValueChange = { /* Email is not editable */ },
+                    label = { Text("Email") },
+                    enabled = false,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text("L'email ne peut pas être modifié", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = { accountViewModel.updateProfile(displayName) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = DarkBlue)
+                ) {
+                    Text("Enregistrer les modifications")
                 }
             }
 
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
+            Divider(modifier = Modifier.padding(vertical = 24.dp))
 
-            Text("Change Password", style = MaterialTheme.typography.titleLarge)
-
-            OutlinedTextField(
-                value = currentPassword,
-                onValueChange = { currentPassword = it },
-                label = { Text("Current Password") },
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            OutlinedTextField(
-                value = newPassword,
-                onValueChange = { newPassword = it },
-                label = { Text("New Password") },
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Button(
-                onClick = { accountViewModel.changePassword(currentPassword, newPassword) },
-                enabled = passwordChangeState != PasswordChangeState.Loading,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                if (passwordChangeState == PasswordChangeState.Loading) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                } else {
-                    Text("Update Password")
+            // Change Password Section
+            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
+                Text("Changer le mot de passe", style = MaterialTheme.typography.titleLarge)
+                Text("Mettez à jour votre mot de passe", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = currentPassword,
+                    onValueChange = { currentPassword = it },
+                    label = { Text("Mot de passe actuel") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = newPassword,
+                    onValueChange = { newPassword = it },
+                    label = { Text("Nouveau mot de passe") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = confirmNewPassword,
+                    onValueChange = { confirmNewPassword = it },
+                    label = { Text("Confirmer le nouveau mot de passe") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = { accountViewModel.changePassword(currentPassword, newPassword) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = DarkBlue)
+                ) {
+                    Text("Changer le mot de passe")
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f, fill = false))
+            Spacer(modifier = Modifier.weight(1f))
 
+            // Logout Button
             Button(
                 onClick = onLogout,
                 modifier = Modifier.fillMaxWidth(),

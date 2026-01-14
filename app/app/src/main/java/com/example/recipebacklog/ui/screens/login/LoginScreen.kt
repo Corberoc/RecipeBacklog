@@ -39,7 +39,7 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
-                .background(LightCream, RoundedCornerShape(16.dp))
+                .background(Color.White, RoundedCornerShape(16.dp))
                 .padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -72,7 +72,7 @@ fun LoginScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(50))
-                    .background(Color.White)
+                    .background(LightCream)
                     .padding(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -82,7 +82,7 @@ fun LoginScreen(
                         .weight(1f)
                         .clip(RoundedCornerShape(50)),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isLogin) LightCream else Color.Transparent,
+                        containerColor = if (isLogin) Color.White else Color.Transparent,
                         contentColor = if (isLogin) DarkBlue else Color.Gray
                     )
                 ) {
@@ -94,7 +94,7 @@ fun LoginScreen(
                         .weight(1f)
                         .clip(RoundedCornerShape(50)),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (!isLogin) LightCream else Color.Transparent,
+                        containerColor = if (!isLogin) Color.White else Color.Transparent,
                         contentColor = if (!isLogin) DarkBlue else Color.Gray
                     )
                 ) {

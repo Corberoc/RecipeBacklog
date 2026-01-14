@@ -6,14 +6,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val LightColorScheme = lightColorScheme(
-    primary = Color.White,
+    primary = Orange,
     secondary = DarkBlue,
-    background = Cream,
-    surface = LightCream,
+    background = Color.White,
+    surface = Color.White,
+    surfaceVariant = LightCream,
     onPrimary = Color.White,
     onSecondary = Color.White,
     onBackground = DarkBlue,
     onSurface = DarkBlue,
+    onSurfaceVariant = DarkBlue,
+    outline = Grey
 )
 
 @Composable

@@ -1,115 +1,231 @@
 package com.example.recipebacklog.ui.screens.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.ui.unit.sp
 import com.example.recipebacklog.model.Recipe
 import com.example.recipebacklog.model.RecipeStatus
+import com.example.recipebacklog.ui.theme.DarkBlue
+import com.example.recipebacklog.ui.theme.LightCream
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    recipes: List<Recipe> = mockRecipes,
+    recipes: List<Recipe> = emptyList(),
     onAdd: () -> Unit,
     onRecipeClick: (String) -> Unit,
     onAccount: () -> Unit,
-    onAbout: () -> Unit
 ) {
-    var selectedStatus by remember { mutableStateOf(RecipeStatus.BACKLOG) }
-    val filtered = recipes.filter { it.status == selectedStatus }
-
-    val screenWidth = LocalConfiguration.current.screenWidthDp
+    var searchQuery by remember { mutableStateOf("") }
+    val filteredRecipes = recipes.filter { it.title.contains(searchQuery, ignoreCase = true) }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Recipes") },
-                actions = {
-                    IconButton(onClick = { onAccount() }) {
-                        Icon(Icons.Default.Person, contentDescription = "Account")
-                    }
-                    IconButton(onClick = { onAbout() }) {
-                        Icon(Icons.Default.Info, contentDescription = "About")
-                    }
-                }
-            )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = onAdd) {
-                Text("+")
-            }
-        }
+        topBar = { TopBar(onAccount) },
+        modifier = Modifier.background(Color.White)
     ) { padding ->
-        Column(modifier = Modifier.padding(padding)) {
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .padding(16.dp)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Filtre des status
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                RecipeStatus.entries.forEach { status ->
-                    FilterChip(
-                        selected = selectedStatus == status,
-                        onClick = { selectedStatus = status },
-                        label = { Text(status.name) }
-                    )
-                }
-            }
+            StatsCards(recipes = recipes)
 
-            // Liste responsive
-            if (screenWidth < 600) {
-                // Phone
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(filtered) { recipe ->
-                        Text(
-                            text = recipe.title,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onRecipeClick(recipe.id) }
-                                .padding(16.dp)
-                        )
-                        HorizontalDivider()
-                    }
-                }
+            Spacer(modifier = Modifier.height(24.dp))
+
+            SearchBar(value = searchQuery, onValueChange = { searchQuery = it })
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            FilterActions(onAdd = onAdd)
+
+            if (filteredRecipes.isEmpty()) {
+                EmptyState(onAdd = onAdd)
             } else {
-                // Tablet / large
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(filtered) { recipe ->
-                        Text(
-                            text = recipe.title,
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .clickable { onRecipeClick(recipe.id) }
-                        )
-                    }
-                }
+                RecipeList(recipes = filteredRecipes, onRecipeClick = onRecipeClick)
             }
         }
     }
 }
 
-// Mock data
-val mockRecipes = listOf(
-    Recipe("1", "Pâtes Carbo", "Classique",null, RecipeStatus.BACKLOG),
-    Recipe("2", "Burger", "Steak + cheddar", null,RecipeStatus.IN_PROGRESS),
-    Recipe("3", "Curry", "Épicé", null,RecipeStatus.DONE),
-    Recipe("4", "Salade", "Légère", null,RecipeStatus.BACKLOG),
-    Recipe("5", "Tacos", "Rapide", null,RecipeStatus.IN_PROGRESS)
-)
+@Composable
+fun TopBar(onAccount: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 24.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(LightCream, CircleShape)
+            ) // Placeholder for avatar image
+            Spacer(modifier = Modifier.width(12.dp))
+            Column {
+                Text("Mes Recettes", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = DarkBlue)
+                Text("Bienvenue, oui", fontSize = 14.sp, color = Color.Gray)
+            }
+        }
+        IconButton(onClick = onAccount) {
+            Icon(Icons.Default.Person, contentDescription = "Account", tint = Color.Gray)
+        }
+    }
+}
+
+@Composable
+fun StatsCards(recipes: List<Recipe>) {
+    val total = recipes.size
+    val todo = recipes.count { it.status == RecipeStatus.BACKLOG }
+    val inProgress = recipes.count { it.status == RecipeStatus.IN_PROGRESS }
+    val done = recipes.count { it.status == RecipeStatus.DONE }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        StatCard("Total", total.toString(), Modifier.weight(1f))
+        Spacer(modifier = Modifier.width(8.dp))
+        StatCard("À faire", todo.toString(), Modifier.weight(1f))
+        Spacer(modifier = Modifier.width(8.dp))
+        StatCard("En cours", inProgress.toString(), Modifier.weight(1f))
+        Spacer(modifier = Modifier.width(8.dp))
+        StatCard("Terminées", done.toString(), Modifier.weight(1f), color = Color(0xFF4CAF50))
+    }
+}
+
+@Composable
+fun StatCard(title: String, count: String, modifier: Modifier = Modifier, color: Color = DarkBlue) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(title, fontSize = 14.sp, color = Color.Gray)
+            Text(count, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = color)
+        }
+    }
+}
+
+@Composable
+fun SearchBar(value: String, onValueChange: (String) -> Unit) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        placeholder = { Text("Rechercher une recette...") },
+        leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            unfocusedBorderColor = Color.LightGray,
+            focusedBorderColor = DarkBlue
+        )
+    )
+}
+
+@Composable
+fun FilterActions(onAdd: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        TextButton(onClick = { /*TODO*/ }) {
+            Text("Statut", color = DarkBlue)
+        }
+        TextButton(onClick = { /*TODO*/ }) {
+            Text("Favoris (0)", color = DarkBlue)
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Button(
+            onClick = onAdd,
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = DarkBlue)
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Add")
+            Spacer(modifier = Modifier.width(4.dp))
+            Text("Ajouter")
+        }
+    }
+}
+
+@Composable
+fun EmptyState(onAdd: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            Icons.Default.Search, // Placeholder icon
+            contentDescription = "Aucune recette",
+            modifier = Modifier
+                .size(100.dp)
+                .clip(CircleShape)
+                .background(Color(0xFFEDE7F6))
+                .padding(24.dp),
+            tint = Color(0xFF5E35B1)
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Text("Aucune recette", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = DarkBlue)
+        Text(
+            "Commencez par ajouter votre première recette !",
+            fontSize = 16.sp,
+            color = Color.Gray,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 32.dp)
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Button(
+            onClick = onAdd,
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = DarkBlue)
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Add")
+            Spacer(modifier = Modifier.width(4.dp))
+            Text("Ajouter une recette")
+        }
+    }
+}
+
+@Composable
+fun RecipeList(recipes: List<Recipe>, onRecipeClick: (String) -> Unit) {
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        items(recipes) { recipe ->
+            Text(
+                text = recipe.title,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onRecipeClick(recipe.id) }
+                    .padding(16.dp)
+            )
+            HorizontalDivider()
+        }
+    }
+}
