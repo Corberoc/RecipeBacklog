@@ -15,13 +15,14 @@ import com.example.recipebacklog.ui.screens.addedit.AddEditRecipeScreen
 import com.example.recipebacklog.ui.home.HomeScreen
 import com.example.recipebacklog.ui.home.HomeViewModel
 import com.example.recipebacklog.ui.screens.login.LoginScreen
-import com.example.recipebacklog.ui.screens.register.RegisterScreen
 import com.example.recipebacklog.ui.search.SearchScreen
 import com.example.recipebacklog.ui.search.MealDetailScreen
 import com.example.recipebacklog.ui.screens.home.RecipeDetailScreen // _____Clément_____
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import com.example.recipebacklog.data.analytics.AnalyticsLogger
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 
 
 @Composable
@@ -31,8 +32,10 @@ fun AppNavGraph(navController: NavHostController) {
     val scope = rememberCoroutineScope()
     val homeViewModel: HomeViewModel = viewModel()
 
+    val authState by authRepo.getAuthState().collectAsState(initial = authRepo.currentUser)
+
     val startDestination =
-        if (authRepo.currentUser != null) "home"
+        if (authState != null) "home"
         else "login"
 
     NavHost(
@@ -55,27 +58,18 @@ fun AppNavGraph(navController: NavHostController) {
                         }
                     }
                 },
-                onRegister = {
-                    navController.navigate("register")
-                }
-            )
-        }
-
-        composable("register") {
-            RegisterScreen(
                 onRegister = { email, pass ->
                     scope.launch {
                         try {
                             authRepo.signUp(email, pass)
                             navController.navigate("home") {
-                                popUpTo("register") { inclusive = true }
+                                popUpTo("login") { inclusive = true }
                             }
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
                     }
-                },
-                onBack = { navController.popBackStack() }
+                }
             )
         }
 

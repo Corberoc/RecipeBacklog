@@ -45,7 +45,7 @@ fun AboutScreen(
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "This app is a demo project to have a very good grade.",
+                text = "Cette application est un projet d'étude pour le cour d'android",
                 style = MaterialTheme.typography.bodyMedium
             )
             Button(
